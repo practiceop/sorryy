@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memory Lane</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap');
+        
+        .floating-heart {
+            position: fixed;
+            animation: float 20s linear infinite;
+            opacity: 0.3;
+            z-index: 1;
+            pointer-events: none;
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(100vh) translateX(0); }
+            100% { transform: translateY(-100px) translateX(50px); }
+        }
+
+        .gradient-bg {
+            background: linear-gradient(135deg, #ffedee 0%, #ffd1d1 25%, #ffc2c2 50%, #ffe3e3 75%, #fff0f0 100%);
+        }
+
+        .handwritten {
+            font-family: 'Dancing Script', cursive;
+        }
+
+        .slide-transition {
+            transition: transform 0.5s ease-out, opacity 0.5s ease-out;
+        }
+
+        .caption-transition {
+            transition: opacity 0.3s ease-in-out;
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen overflow-x-hidden">
+    <!-- Floating Hearts Background -->
+    <div id="hearts-container"></div>
+
+    <!-- Main Content -->
+    <div class="container mx-auto px-4 py-8">
+        <!-- Headers -->
+        <h1 class="handwritten text-4xl md:text-5xl text-center text-pink-600 mb-4">
+            Pookie, let's take a little trip down Memory Lane... 💕
+        </h1>
+        <p class="text-lg md:text-xl text-center text-gray-700 mb-8">
+            Each picture holds a story... a moment where we were happiest.<br>
+            I never want to be the reason you stop smiling.
+        </p>
+
+        <!-- Gallery Container -->
+        <div class="relative max-w-2xl mx-auto">
+            <!-- Gallery Slider -->
+            <div id="gallery" class="relative overflow-hidden rounded-lg shadow-xl">
+                <div id="slider" class="flex transition-transform duration-300 ease-out">
+                    <!-- Images will be dynamically added here -->
+                </div>
+
+                <!-- Navigation Arrows -->
+                <button id="prevBtn" class="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white/80 rounded-full p-2 shadow-lg z-10">
+                    ←
+                </button>
+                <button id="nextBtn" class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white/80 rounded-full p-2 shadow-lg z-10">
+                    →
+                </button>
+            </div>
+
+            <!-- Caption -->
+            <div id="caption" class="text-center mt-4 text-gray-700 italic caption-transition"></div>
+        </div>
+
+        <!-- Final Message (Hidden initially) -->
+        <div id="finalMessage" class="hidden text-center mt-8 opacity-0 transition-opacity duration-500">
+            <p class="text-2xl text-pink-600 mb-4">Did I make you smile a little? 💖</p>
+            <button id="notForgiving" class="bg-pink-500 hover:bg-pink-600 text-white px-6 py-3 rounded-full shadow-lg transition-transform hover:scale-105">
+                Still not forgiving me?
+            </button>
+        </div>
+
+        <!-- Reply Section (Hidden initially) -->
+        <div id="replySection" class="hidden text-center mt-8">
+            <textarea id="replyText" class="w-full max-w-lg mx-auto p-4 rounded-lg border-2 border-pink-300 focus:border-pink-500 focus:ring focus:ring-pink-200 resize-none" rows="4" placeholder="Write your reply here..."></textarea>
+            <button id="sendReply" class="mt-4 bg-pink-500 hover:bg-pink-600 text-white px-6 py-3 rounded-full shadow-lg transition-transform hover:scale-105">
+                Send Reply 💌
+            </button>
+        </div>
+
+        <!-- Audio Control -->
+        <button id="audioControl" class="fixed bottom-4 right-4 bg-white/80 rounded-full p-3 shadow-lg z-20">
+            🔊
+        </button>
+    </div>
+    
+
+    <script>
+        // Sample image data - Replace placeholder URLs with your actual images
+        const images = [
+            { url: "pic1.jpeg", caption: "Remember this day? You smiled so beautifully. I never want to be the reason for your frown." },
+            { url: "pic2.jpeg", caption: "This was the day you made me laugh uncontrollably... You are my happiest place." },
+            { url: "pic3.jpeg", caption: "Look at your smile here! It's my favorite thing in the world." },
+            { url: "pic4.jpeg", caption: "Even when I mess up, you are still my everything. I never want to lose this." },
+            { url: "pic5.jpeg", caption: "Every moment with you is a treasure I want to keep forever." }
+        ];
+
+        // Background music setup
+        const bgMusic = new Howl({
+            src: ['https://example.com/romantic-music.mp3'], // Replace with actual music URL
+            loop: true,
+            volume: 0.3,
+            autoplay: false
+        });
+
+        // Initialize variables
+        let currentSlide = 0;
+        let isDragging = false;
+        let startPos = 0;
+        let currentTranslate = 0;
+        let prevTranslate = 0;
+        let animationID = 0;
+        let isMuted = true;
+
+        // Setup elements
+        const slider = document.getElementById('slider');
+        const caption = document.getElementById('caption');
+        const finalMessage = document.getElementById('finalMessage');
+        const audioControl = document.getElementById('audioControl');
+
+        // Create floating hearts
+        function createFloatingHearts() {
+            const heartsContainer = document.getElementById('hearts-container');
+            for (let i = 0; i < 15; i++) {
+                const heart = document.createElement('div');
+                heart.innerHTML = '💗';
+                heart.className = 'floating-heart';
+                heart.style.left = `${Math.random() * 100}vw`;
+                heart.style.animationDelay = `${Math.random() * 20}s`;
+                heartsContainer.appendChild(heart);
+            }
+        }
+
+        // Initialize gallery
+        function initializeGallery() {
+            images.forEach((image, index) => {
+                const slide = document.createElement('div');
+                slide.className = 'min-w-full slide-transition';
+                slide.innerHTML = `
+                    <img src="${image.url}" alt="Memory ${index + 1}" 
+                         class="w-full h-64 md:h-96 object-cover">
+                `;
+                slider.appendChild(slide);
+            });
+            updateCaption();
+        }
+
+        // Touch events handling
+        function setupTouchEvents() {
+            const hammer = new Hammer(slider);
+            hammer.on('panstart panmove panend', (e) => {
+                switch(e.type) {
+                    case 'panstart':
+                        isDragging = true;
+                        startPos = e.deltaX;
+                        break;
+                    case 'panmove':
+                        if (isDragging) {
+                            const currentPosition = e.deltaX - startPos;
+                            setSliderPosition(currentPosition);
+                        }
+                        break;
+                    case 'panend':
+                        isDragging = false;
+                        const movement = e.deltaX - startPos;
+                        if (Math.abs(movement) > 100) {
+                            if (movement > 0 && currentSlide > 0) {
+                                currentSlide--;
+                            } else if (movement < 0 && currentSlide < images.length - 1) {
+                                currentSlide++;
+                            }
+                        }
+                        updateSlider();
+                        break;
+                }
+            });
+        }
+
+        // Update slider position
+        function setSliderPosition(position) {
+            const slideWidth = slider.clientWidth;
+            currentTranslate = prevTranslate + position;
+            slider.style.transform = `translateX(${currentTranslate}px)`;
+        }
+
+        // Update slider and caption
+        function updateSlider() {
+            const slideWidth = slider.clientWidth;
+            currentTranslate = -currentSlide * slideWidth;
+            prevTranslate = currentTranslate;
+            slider.style.transform = `translateX(${currentTranslate}px)`;
+            updateCaption();
+
+            // Show final message when reaching the last slide
+            if (currentSlide === images.length - 1) {
+                finalMessage.classList.remove('hidden');
+                setTimeout(() => {
+                    finalMessage.classList.add('opacity-100');
+                }, 100);
+            }
+        }
+
+        // Update caption text
+        function updateCaption() {
+            caption.style.opacity = '0';
+            setTimeout(() => {
+                caption.textContent = images[currentSlide].caption;
+                caption.style.opacity = '1';
+            }, 300);
+        }
+
+        // Navigation buttons
+        document.getElementById('prevBtn').addEventListener('click', () => {
+            if (currentSlide > 0) {
+                currentSlide--;
+                updateSlider();
+            }
+        });
+
+        document.getElementById('nextBtn').addEventListener('click', () => {
+            if (currentSlide < images.length - 1) {
+                currentSlide++;
+                updateSlider();
+            }
+        });
+
+        // Audio control
+        audioControl.addEventListener('click', () => {
+            if (isMuted) {
+                bgMusic.play();
+                audioControl.textContent = '🔊';
+            } else {
+                bgMusic.pause();
+                audioControl.textContent = '🔇';
+            }
+            isMuted = !isMuted;
+        });
+
+        // Initialize everything
+        createFloatingHearts();
+        initializeGallery();
+        setupTouchEvents();
+
+        // Smooth redirection on button click
+        document.getElementById('notForgiving').addEventListener('click', () => {
+            gsap.to('body', {
+                opacity: 0,
+                duration: 1,
+                onComplete: () => {
+                    window.location.href = 'game.html'; // Replace with your actual next page URL
+                }
+            });
+        });
+    </script>
+</body>
+</html>

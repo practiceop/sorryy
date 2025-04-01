@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sorry Letters Game</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(5deg); }
+            100% { transform: translateY(0px) rotate(0deg); }
+        }
+
+        @keyframes heartbeat {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes shine {
+            0% { background-position: -100% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: url('https://cdnjs.cloudflare.com/ajax/libs/simple-line-icons/2.5.5/fonts/Simple-Line-Icons.woff');
+            background-color: #200122;
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(-45deg, #8bffec, #19a882, #6a3093, #a044ff);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+            z-index: -2;
+        }
+
+        body::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M50 50 L100 0 L50 0 Z' fill='rgba(255,255,255,0.05)'/%3E%3Cpath d='M50 50 L0 100 L0 50 Z' fill='rgba(255,255,255,0.05)'/%3E%3Cpath d='M50 50 L100 100 L50 100 Z' fill='rgba(255,255,255,0.05)'/%3E%3Cpath d='M50 50 L0 0 L50 0 Z' fill='rgba(255,255,255,0.05)'/%3E%3C/svg%3E");
+            opacity: 0.3;
+            z-index: -1;
+        }
+
+        .sparkle {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 4s infinite;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.2; transform: scale(0.8); }
+            50% { opacity: 0.8; transform: scale(1); }
+        }
+
+        .floating-bubble {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.1));
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            pointer-events: none;
+            z-index: -1;
+            animation: float-bubble 10s linear infinite;
+        }
+
+        @keyframes float-bubble {
+            0% { transform: translateY(100vh) translateX(0); opacity: 0.7; }
+            100% { transform: translateY(-100px) translateX(20px); opacity: 0; }
+        }
+
+        .game-title {
+            color: white;
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px rgba(255, 105, 180, 0.8), 
+                        0 0 20px rgba(255, 105, 180, 0.5),
+                        0 0 30px rgba(255, 105, 180, 0.3);
+            background: linear-gradient(90deg, #ff69b4, #ff1493, #ff69b4);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shine 3s linear infinite;
+        }
+
+        #game-container {
+            width: 100%;
+            max-width: 600px;
+            height: 80vh;
+            position: relative;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3),
+                        inset 0 0 20px rgba(255, 255, 255, 0.5),
+                        0 0 30px rgba(255, 105, 180, 0.5);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        #game-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M10 10 L18 2 L10 2 Z' fill='rgba(255,105,180,0.05)'/%3E%3Cpath d='M10 10 L2 18 L2 10 Z' fill='rgba(255,105,180,0.05)'/%3E%3Cpath d='M10 10 L18 18 L10 18 Z' fill='rgba(255,105,180,0.05)'/%3E%3Cpath d='M10 10 L2 2 L10 2 Z' fill='rgba(255,105,180,0.05)'/%3E%3C/svg%3E");
+            opacity: 0.5;
+            z-index: -1;
+        }
+
+        #score-container {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(45deg, rgba(255, 105, 180, 0.8), rgba(105, 240, 255, 0.8));
+            padding: 12px 30px;
+            border-radius: 30px;
+            box-shadow: 0 5px 15px rgba(255, 105, 180, 0.3),
+                        inset 0 0 10px rgba(255, 255, 255, 0.3),
+                        0 0 20px rgba(255, 105, 180, 0.5);
+            z-index: 100;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        #score {
+            font-size: 24px;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            font-weight: bold;
+        }
+
+        #basket {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90px;
+            height: 70px;
+            background: linear-gradient(45deg, #ff69b4, #ff1493);
+            border-radius: 40px 40px 5px 5px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(255, 105, 180, 0.5),
+                        inset 0 0 10px rgba(255, 255, 255, 0.5),
+                        0 0 20px rgba(255, 105, 180, 0.7);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            overflow: visible;
+            z-index: 10;
+        }
+
+        #basket::before {
+            content: '❤️';
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 30px;
+            filter: drop-shadow(0 0 10px rgba(255, 0, 0, 0.7));
+            animation: heartbeat 1s infinite;
+        }
+
+        #basket::after {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 10px;
+            right: 10px;
+            height: 30px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+        }
+
+        .letter {
+            position: absolute;
+            font-size: 36px;
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(255, 105, 180, 0.8),
+                        0 0 20px rgba(255, 105, 180, 0.5);
+            background: linear-gradient(45deg, #ff69b4, #ff1493);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            padding: 10px;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+            animation: float 3s ease-in-out infinite;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .letter::before {
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: -5px;
+            right: -5px;
+            bottom: -5px;
+            background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 70%);
+            z-index: -1;
+            opacity: 0.5;
+            border-radius: 50%;
+        }
+
+        #win-screen {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            z-index: 1000;
+            border-radius: 30px;
+            padding: 20px;
+            box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.5);
+        }
+
+        #win-screen h2 {
+            color: white;
+            text-shadow: 0 0 10px rgba(255, 20, 147, 0.8);
+            font-size: 2.2rem;
+            margin-bottom: 20px;
+        }
+
+        #win-screen p {
+            color: white;
+            text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+            font-size: 1.2rem;
+            max-width: 80%;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        #reply-container {
+            width: 80%;
+            margin: 20px 0;
+        }
+
+        #reply-input {
+            width: 100%;
+            padding: 15px;
+            border-radius: 25px;
+            border: 2px solid rgba(255, 105, 180, 0.5);
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(5px);
+            color: white;
+            font-size: 16px;
+            text-align: center;
+            outline: none;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        #reply-input:focus {
+            border-color: #ff1493;
+            box-shadow: 0 0 15px rgba(255, 20, 147, 0.5);
+        }
+
+        #reply-input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 30px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: linear-gradient(45deg, #ff69b4, #ff1493);
+            color: white;
+            margin: 10px;
+            box-shadow: 0 5px 15px rgba(255, 20, 147, 0.3),
+                        0 0 10px rgba(255, 105, 180, 0.5);
+            position: relative;
+            overflow: hidden;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(255, 20, 147, 0.4),
+                        0 0 15px rgba(255, 105, 180, 0.6);
+        }
+
+        .btn:active {
+            transform: translateY(1px);
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: all 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .floating-hearts {
+            position: absolute;
+            font-size: 24px;
+            pointer-events: none;
+            z-index: 1000;
+            filter: drop-shadow(0 0 10px rgba(255, 0, 0, 0.6));
+            animation: floatUp 2s ease-out forwards;
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(0) scale(1) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-120px) scale(1.5) rotate(20deg);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1 class="game-title">💝 Catch My Heart & Sorry 💝</h1>
+    <div id="game-container">
+        <div id="score-container">
+            <div id="score">Sorry Letters: 0 / 10</div>
+        </div>
+        <div id="basket"></div>
+        <div id="win-screen">
+            <h2>🌹 You've Captured My Heart! 🌹</h2>
+            <p>Every letter caught is a piece of my sincere apology... 💖</p>
+            <p>I promise to make it up to you! 🥺</p>
+            <div id="reply-container">
+                <input type="text" id="reply-input" placeholder="Write your feelings here... ❤️">
+            </div>
+            <button class="btn btn-forgive">Yes, I Forgive You! 💕</button>
+            <button class="btn btn-retry">Need More Convincing 🥺</button>
+        </div>
+    </div>
+
+    <script>
+        const gameContainer = document.getElementById('game-container');
+        const basket = document.getElementById('basket');
+        const scoreElement = document.getElementById('score');
+        const winScreen = document.getElementById('win-screen');
+        const forgiveBtn = document.querySelector('.btn-forgive');
+        const retryBtn = document.querySelector('.btn-retry');
+
+        let score = 0;
+        let gameActive = true;
+        let basketPosition = 50;
+        const targetScore = 10;
+        let letterInterval;
+        let caughtLetters = new Set();
+
+        // Create background effects
+        function createBackgroundEffects() {
+            // Add sparkles
+            for (let i = 0; i < 50; i++) {
+                const sparkle = document.createElement('div');
+                sparkle.className = 'sparkle';
+                sparkle.style.width = Math.random() * 3 + 1 + 'px';
+                sparkle.style.height = sparkle.style.width;
+                sparkle.style.left = Math.random() * 100 + 'vw';
+                sparkle.style.top = Math.random() * 100 + 'vh';
+                sparkle.style.animationDelay = Math.random() * 4 + 's';
+                document.body.appendChild(sparkle);
+            }
+
+            // Add floating bubbles
+            for (let i = 0; i < 15; i++) {
+                const bubble = document.createElement('div');
+                bubble.className = 'floating-bubble';
+                const size = Math.random() * 50 + 20;
+                bubble.style.width = size + 'px';
+                bubble.style.height = size + 'px';
+                bubble.style.left = Math.random() * 100 + 'vw';
+                bubble.style.bottom = -100 + 'px';
+                bubble.style.animationDuration = (Math.random() * 10 + 10) + 's';
+                bubble.style.animationDelay = (Math.random() * 10) + 's';
+                document.body.appendChild(bubble);
+            }
+        }
+
+        function createFloatingHeart(x, y) {
+            const heart = document.createElement('div');
+            heart.className = 'floating-hearts';
+            heart.textContent = ['❤️', '💖', '💕', '💓', '💗'][Math.floor(Math.random() * 5)];
+            heart.style.left = x + 'px';
+            heart.style.top = y + 'px';
+            gameContainer.appendChild(heart);
+            setTimeout(() => heart.remove(), 2000);
+        }
+
+        function createLetter() {
+            if (!gameActive) return;
+
+            const letter = document.createElement('div');
+            letter.className = 'letter';
+            letter.textContent = 'SORRY'[Math.floor(Math.random() * 5)];
+            letter.style.left = Math.random() * (gameContainer.offsetWidth - 40) + 'px';
+            letter.style.top = '-50px';
+            letter.dataset.id = Date.now(); // Unique identifier for each letter
+            gameContainer.appendChild(letter);
+
+            // Add a glow effect to each letter
+            const glow = Math.random() * 5 + 5;
+            letter.style.filter = `drop-shadow(0 0 ${glow}px rgba(255, 105, 180, 0.8))`;
+
+            gsap.to(letter, {
+                top: gameContainer.offsetHeight + 'px',
+                left: `+=${(Math.random() * 100) - 50}`,
+                rotation: Math.random() * 360,
+                duration: 4 + Math.random() * 2,
+                ease: 'power1.in',
+                onUpdate: () => checkCollision(letter),
+                onComplete: () => {
+                    if (letter.parentNode) {
+                        letter.remove();
+                    }
+                }
+            });
+        }
+
+        function checkCollision(letter) {
+            if (!gameActive || caughtLetters.has(letter.dataset.id)) return;
+
+            const basketRect = basket.getBoundingClientRect();
+            const letterRect = letter.getBoundingClientRect();
+
+            if (
+                letterRect.bottom >= basketRect.top &&
+                letterRect.top <= basketRect.bottom &&
+                letterRect.right >= basketRect.left &&
+                letterRect.left <= basketRect.right
+            ) {
+                caughtLetters.add(letter.dataset.id);
+                score++;
+                scoreElement.textContent = `Sorry Letters: ${score} / ${targetScore}`;
+
+                // Create catch effect
+                for (let i = 0; i < 5; i++) {
+                    setTimeout(() => {
+                        createFloatingHeart(
+                            letterRect.left + Math.random() * 40 - 20,
+                            letterRect.top
+                        );
+                    }, i * 100);
+                }
+
+                // Add pulse effect to basket
+                gsap.to(basket, {
+                    scale: 1.2,
+                    duration: 0.2,
+                    yoyo: true,
+                    repeat: 1
+                });
+
+                gsap.to(letter, {
+                    scale: 0,
+                    opacity: 0,
+                    duration: 0.2,
+                    onComplete: () => {
+                        letter.remove();
+                        if (score >= targetScore) {
+                            winGame();
+                        }
+                    }
+                });
+            }
+        }
+
+        function winGame() {
+            gameActive = false;
+            clearInterval(letterInterval);
+            winScreen.style.display = 'flex';
+            
+            // Celebration effect
+            for (let i = 0; i < 30; i++) {
+                setTimeout(() => {
+                    createFloatingHeart(
+                        Math.random() * gameContainer.offsetWidth,
+                        Math.random() * gameContainer.offsetHeight
+                    );
+                }, i * 100);
+            }
+
+            // Add confetti-like particles
+            for (let i = 0; i < 50; i++) {
+                setTimeout(() => {
+                    const particle = document.createElement('div');
+                    particle.className = 'floating-hearts';
+                    particle.textContent = ['✨', '💫', '⭐', '🌟'][Math.floor(Math.random() * 4)];
+                    particle.style.left = Math.random() * gameContainer.offsetWidth + 'px';
+                    particle.style.top = Math.random() * gameContainer.offsetHeight + 'px';
+                    gameContainer.appendChild(particle);
+                    setTimeout(() => particle.remove(), 2000);
+                }, i * 50);
+            }
+        }
+
+        function resetGame() {
+            score = 0;
+            gameActive = true;
+            caughtLetters.clear();
+            scoreElement.textContent = `Sorry Letters: ${score} / ${targetScore}`;
+            winScreen.style.display = 'none';
+            document.querySelectorAll('.letter').forEach(letter => letter.remove());
+            
+            // Restart letter creation
+            clearInterval(letterInterval);
+            letterInterval = setInterval(createLetter, 1000);
+        }
+
+        // Keyboard controls
+        document.addEventListener('keydown', (e) => {
+            if (!gameActive) return;
+            
+            if (e.key === 'ArrowLeft' && basketPosition > 0) {
+                basketPosition = Math.max(0, basketPosition - 5);
+            }
+            if (e.key === 'ArrowRight' && basketPosition < 100) {
+                basketPosition = Math.min(100, basketPosition + 5);
+            }
+            gsap.to(basket, {
+                left: basketPosition + '%',
+                duration: 0.2,
+                ease: 'power2.out'
+            });
+        });
+
+        // Touch controls
+        let touchStartX = 0;
+        gameContainer.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+        });
+
+        gameContainer.addEventListener('touchmove', (e) => {
+            if (!gameActive) return;
+            e.preventDefault();
+            
+            const touch = e.touches[0];
+            const diffX = touch.clientX - touchStartX;
+            const containerWidth = gameContainer.offsetWidth;
+            
+            basketPosition = Math.max(0, Math.min(100, basketPosition + (diffX / containerWidth) * 100));
+            gsap.to(basket, {
+                left: basketPosition + '%',
+                duration: 0.2,
+                ease: 'power2.out'
+            });
+            touchStartX = touch.clientX;
+        });
+
+        retryBtn.addEventListener('click', () => {
+            // Smooth redirection to the next page
+            gsap.to('body', {
+                opacity: 0,
+                duration: 1,
+                onComplete: () => {
+                    window.location.href = 'final.html'; // Replace with your actual next page URL
+                }
+            });
+        });
+    
+        forgiveBtn.addEventListener('click', () => {
+            const reply = document.getElementById('reply-input').value;
+            alert('Thank you for forgiving me! 💖\n' + (reply ? `Your message: ${reply}` : ''));
+        });
+
+        // Create background effects
+        createBackgroundEffects();
+
+        // Mouse movement for basket (additional control method)
+        gameContainer.addEventListener('mousemove', (e) => {
+            if (!gameActive) return;
+            
+            const containerRect = gameContainer.getBoundingClientRect();
+            const relativeX = e.clientX - containerRect.left;
+            basketPosition = (relativeX / containerRect.width) * 100;
+            basketPosition = Math.max(0, Math.min(100, basketPosition));
+            
+            gsap.to(basket, {
+                left: basketPosition + '%',
+                duration: 0.2,
+                ease: 'power2.out'
+            });
+        });
+
+        // Start game
+        letterInterval = setInterval(createLetter, 1000);
+
+        // Prevent default touch behavior
+        document.addEventListener('touchmove', (e) => {
+            if (gameActive) e.preventDefault();
+        }, { passive: false });
+
+        // Periodically add background effects
+        setInterval(() => {
+            if (document.querySelectorAll('.floating-bubble').length < 15) {
+                const bubble = document.createElement('div');
+                bubble.className = 'floating-bubble';
+                const size = Math.random() * 50 + 20;
+                bubble.style.width = size + 'px';
+                bubble.style.height = size + 'px';
+                bubble.style.left = Math.random() * 100 + 'vw';
+                bubble.style.bottom = -100 + 'px';
+                bubble.style.animationDuration = (Math.random() * 10 + 10) + 's';
+                document.body.appendChild(bubble);
+            }
+        }, 5000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Super Cute Pookie Hug 🌸</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.0/gsap.min.js"></script>
+    
+    <style>
+        :root {
+            --pink-primary: #ff9ec6;
+            --pink-secondary: #ffcee6;
+            --purple-soft: #e5c8ff;
+            --blue-soft: #c8e6ff;
+            --yellow-soft: #fff3c8;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background: linear-gradient(45deg, var(--pink-secondary), var(--purple-soft), var(--blue-soft));
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+            padding: 1rem;
+            overflow: hidden;
+        }
+
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .sparkle {
+            position: absolute;
+            pointer-events: none;
+            animation: sparkleFloat 3s linear infinite;
+        }
+
+        @keyframes sparkleFloat {
+            0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+            100% { transform: translate(100px, -100px) rotate(360deg); opacity: 0; }
+        }
+
+        .heart {
+            position: absolute;
+            font-size: 2rem;
+            animation: float 4s linear infinite;
+            pointer-events: none;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; }
+            50% { transform: translateY(-50vh) rotate(180deg) scale(1.2); opacity: 0.5; }
+            100% { transform: translateY(-100vh) rotate(360deg) scale(1); opacity: 0; }
+        }
+
+        .container {
+            text-align: center;
+            max-width: 800px;
+            width: 100%;
+            z-index: 2;  /* Increased z-index */
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(8px);
+            border-radius: 30px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(255, 158, 198, 0.3);
+            border: 3px solid rgba(255, 255, 255, 0.6);
+            position: relative; /* Added position relative */
+        }
+
+
+        h1 {
+            color: #ff5fa2;
+            font-size: clamp(2rem, 6vw, 3.5rem);
+            margin-bottom: 1.5rem;
+            opacity: 0;
+            text-shadow: 3px 3px 0 var(--pink-secondary);
+            letter-spacing: 1px;
+        }
+
+        p {
+            color: #9b6dff;
+            font-size: clamp(1.2rem, 4vw, 1.8rem);
+            margin-bottom: 2rem;
+            opacity: 0;
+        }
+
+        .hug-button {
+            background: linear-gradient(45deg, #ff5fa2, #ff8dc6);
+            color: white;
+            border: none;
+            border-radius: 9999px;
+            padding: clamp(1rem, 4vw, 2rem) clamp(2rem, 8vw, 4rem);
+            font-size: clamp(1.2rem, 4vw, 1.8rem);
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 20px rgba(255, 95, 162, 0.4);
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hug-button:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 25px rgba(255, 95, 162, 0.6);
+        }
+
+        .hug-button:active {
+            transform: scale(0.95);
+        }
+
+        .hug-button::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transform: rotate(45deg);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% { transform: rotate(45deg) translateX(-200%); }
+            100% { transform: rotate(45deg) translateX(200%); }
+        }
+
+        .hug-animation {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(45deg, rgba(255, 206, 230, 0.97), rgba(229, 200, 255, 0.97));
+            backdrop-filter: blur(8px);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 2rem;
+            z-index: 9999; /* Increased z-index to be above everything */
+            opacity: 0; /* Start hidden */
+            pointer-events: none; /* Initially no pointer events */
+        }
+        .hug-animation.active {
+            opacity: 1;
+            pointer-events: all; /* Enable pointer events when active */
+        }
+
+
+        .hug-image {
+            width: min(90%, 400px);
+            height: auto;
+            margin-bottom: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(255, 158, 198, 0.4);
+        }
+
+        .progress-ring {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-90deg);
+            pointer-events: none;
+        }
+
+        .button-container {
+            position: relative;
+            margin: 2rem 0;
+        }
+
+        .send-back-button {
+            background: linear-gradient(45deg, #9b6dff, #c8a5ff);
+            color: white;
+            border: none;
+            border-radius: 9999px;
+            padding: clamp(0.8rem, 3vw, 1.5rem) clamp(1.5rem, 6vw, 3rem);
+            font-size: clamp(1rem, 3vw, 1.4rem);
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 2rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 20px rgba(155, 109, 255, 0.4);
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+        }
+
+        .send-back-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 25px rgba(155, 109, 255, 0.6);
+        }
+
+        .cute-emoji {
+            font-size: 1.5em;
+            margin: 0 0.2em;
+            display: inline-block;
+            animation: bounce 1s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .message {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            margin: 1rem;
+            box-shadow: 0 8px 32px rgba(255, 158, 198, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <div id="hearts-container"></div>
+    
+    <div class="container">
+        <h1 id="main-heading">
+            <span class="cute-emoji">🌸</span>
+            My Precious Pookie!
+            <span class="cute-emoji">🌸</span>
+        </h1>
+        <p id="sub-heading">Hold my hand for 3 seconds for the warmest virtual hug ever! 💝</p>
+        
+        <div class="button-container">
+            <button class="hug-button" id="hugButton">
+                Give Pookie a Big Hug! 🤗
+            </button>
+            
+            <svg class="progress-ring" width="140" height="140">
+                <circle id="progress-ring-circle"
+                        stroke="#ff5fa2"
+                        stroke-width="6"
+                        fill="transparent"
+                        r="65"
+                        cx="70"
+                        cy="70"/>
+            </svg>
+        </div>
+    </div>
+
+    <div class="hug-animation" id="hug-animation">
+        <img src="./anime-anime-hug.gif" alt="Cute Hug Animation" class="hug-image">
+        <div class="message">
+            <h2 style="color: #ff5fa2; font-size: clamp(1.8rem, 5vw, 2.5rem); margin-bottom: 1rem;">
+                Ab to maaf kar do 🥺
+                Please , Please , Please , Please Na !!
+            </h2>
+            <p style="color: #9b6dff; font-size: clamp(1.2rem, 4vw, 1.8rem); margin-bottom: 1rem;">
+                You're my everything and more! 🌟
+            </p>
+            <p style="color: #ff8dc6; font-size: clamp(1.1rem, 3vw, 1.5rem);">
+                Can't wait to squish you in real life! 🥰
+            </p>
+        </div>
+        <button class="send-back-button" id="sendHugBack">
+            Send an Extra Special Hug Back! 💝
+        </button>
+    </div>
+
+    <script>
+        // Initialize animations
+        gsap.to("#main-heading", {
+            opacity: 1,
+            y: 0,
+            duration: 1.5,
+            ease: "elastic.out(1, 0.3)"
+        });
+
+        gsap.to("#sub-heading", {
+            opacity: 1,
+            duration: 1,
+            delay: 0.5,
+            ease: "power2.out"
+        });
+
+        // Floating hearts with different emojis
+        function createHeart() {
+            const emojis = ['💖', '💝', '💕', '💗', '🌸', '✨', '💫'];
+            const heart = document.createElement('div');
+            heart.innerHTML = emojis[Math.floor(Math.random() * emojis.length)];
+            heart.className = 'heart';
+            heart.style.left = Math.random() * 100 + 'vw';
+            heart.style.animationDuration = (Math.random() * 2 + 3) + 's';
+            document.getElementById('hearts-container').appendChild(heart);
+            
+            setTimeout(() => heart.remove(), 4000);
+        }
+
+        setInterval(createHeart, 400);
+
+        // Button hold logic
+        const hugButton = document.getElementById('hugButton');
+        const progressRing = document.getElementById('progress-ring-circle');
+        const circumference = 2 * Math.PI * 65;
+        let startTime = 0;
+        let holdTimer = null;
+        let progress = 0;
+
+        progressRing.style.strokeDasharray = `${circumference} ${circumference}`;
+        progressRing.style.strokeDashoffset = circumference;
+
+        function setProgress(percent) {
+            const offset = circumference - (percent / 100 * circumference);
+            progressRing.style.strokeDashoffset = offset;
+        }
+
+        function startHold(e) {
+            e.preventDefault();
+            startTime = Date.now();
+            holdTimer = setInterval(updateProgress, 10);
+            hugButton.style.transform = 'scale(0.95)';
+        }
+
+        function updateProgress() {
+            const elapsedTime = Date.now() - startTime;
+            progress = Math.min((elapsedTime / 3000) * 100, 100);
+            setProgress(progress);
+            
+            if (progress >= 100) {
+                clearInterval(holdTimer);
+                showHugAnimation();
+            }
+        }
+
+        function endHold() {
+            if (progress < 100) {
+                clearInterval(holdTimer);
+                progress = 0;
+                setProgress(0);
+            }
+            hugButton.style.transform = 'scale(1)';
+        }
+
+        function showHugAnimation() {
+            if (navigator.vibrate) {
+                navigator.vibrate([100, 50, 100, 50, 100]);
+            }
+
+            const hugAnimation = document.getElementById('hug-animation');
+            hugAnimation.style.display = 'flex';
+            
+            // Small delay to ensure display: flex is applied before animation
+            setTimeout(() => {
+                hugAnimation.classList.add('active');
+                
+                gsap.from(hugAnimation.children, {
+                    opacity: 0,
+                    y: 30,
+                    duration: 1,
+                    stagger: 0.3,
+                    ease: "back.out(1.7)"
+                });
+            }, 50);
+        }
+        function hideHugAnimation() {
+            const hugAnimation = document.getElementById('hug-animation');
+            hugAnimation.classList.remove('active');
+            setTimeout(() => {
+                hugAnimation.style.display = 'none';
+            }, 300); // Wait for fade out animation
+        }
+        const closeButton = document.createElement('button');
+        closeButton.innerHTML = '✖';
+        closeButton.style.cssText = `
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.3);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 20px;
+            color: #ff5fa2;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        `;
+        closeButton.addEventListener('mouseover', () => {
+            closeButton.style.background = 'rgba(255, 255, 255, 0.5)';
+        });
+        closeButton.addEventListener('mouseout', () => {
+            closeButton.style.background = 'rgba(255, 255, 255, 0.3)';
+        });
+        closeButton.addEventListener('click', hideHugAnimation);
+        document.getElementById('hug-animation').appendChild(closeButton);
+
+        hugButton.addEventListener('mousedown', startHold);
+        hugButton.addEventListener('touchstart', startHold);
+        hugButton.addEventListener('mouseup', endHold);
+        hugButton.addEventListener('touchend', endHold);
+        hugButton.addEventListener('mouseleave', endHold);
+
+        // Send hug back animation
+        document.getElementById('sendHugBack').addEventListener('click', function() {
+            this.innerHTML = '💝 Sending Extra Love! 💝';
+            if (navigator.vibrate) {
+                navigator.vibrate([100, 50, 100, 50, 100]);
+            }
+            setTimeout(() => {
+                this.innerHTML = 'Send an Extra Special Hug Back! 💝';
+            }, 2000);
+        });
+    </script>
+</body>
+</html>

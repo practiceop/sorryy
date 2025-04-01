@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>From My Heart to Yours 💝</title>
+    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap');
+        
+        .romantic-font {
+            font-family: 'Dancing Script', cursive;
+        }
+        
+        .modern-gradient {
+            background: linear-gradient(135deg, #ff6b6b, #ffd5d5, #ffe3e3);
+        }
+        
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+        
+        @keyframes heartbeat {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .heartbeat {
+            animation: heartbeat 1s infinite;
+        }
+        
+        .crying-emoji {
+            position: absolute;
+            animation: fall linear forwards;
+        }
+        
+        @keyframes fall {
+            to {
+                transform: translateY(100vh);
+            }
+        }
+        
+        .love-letter {
+            transform: scale(0);
+            transition: transform 0.5s ease-out;
+        }
+        
+        .love-letter.show {
+            transform: scale(1);
+        }
+        
+        .floating-hearts {
+            position: fixed;
+            pointer-events: none;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body class="modern-gradient min-h-screen flex flex-col items-center p-4">
+    <div id="hearts-container" class="fixed top-0 left-0 w-full h-full pointer-events-none"></div>
+    
+    <!-- Main Content -->
+    <div class="max-w-4xl w-full mx-auto text-center mt-8 space-y-8">
+        <h1 class="romantic-font text-5xl md:text-7xl text-red-600 fade-in">
+            My Heart Beats Only For You ❤️
+        </h1>
+        
+        <div class="glass-effect p-6 rounded-2xl mt-8">
+            <p class="text-2xl md:text-3xl text-pink-800 romantic-font">
+                Every moment without your smile feels like an eternity...
+                Will you find it in your heart to forgive me? 🥺
+            </p>
+        </div>
+
+        <!-- Modern GIF Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
+            <div class="glass-effect p-4 rounded-2xl transform hover:scale-105 transition">
+                <img src="./sorry.gif" alt="Love GIF" class="rounded-xl mx-auto"/>
+                <p class="romantic-font mt-4 text-xl text-pink-700">Missing you like crazy... 💗</p>
+            </div>
+            <div class="glass-effect p-4 rounded-2xl transform hover:scale-105 transition">
+                <img src="./sorry2.gif" alt="Heart GIF" class="rounded-xl mx-auto"/>
+                <p class="romantic-font mt-4 text-xl text-pink-700">My heart belongs to you... 💝</p>
+            </div>
+            <div class="glass-effect p-4 rounded-2xl transform hover:scale-105 transition">
+                <img src="./sorry_3.gif" alt="Cute GIF" class="rounded-xl mx-auto"/>
+                
+                <p class="romantic-font mt-4 text-xl text-pink-700">Please come back to me... 💖</p>
+            </div>
+        </div>
+
+        <!-- Love Letter (Hidden initially) -->
+        <div id="loveLetter" class="love-letter glass-effect p-8 rounded-3xl mx-auto max-w-2xl hidden">
+            <h2 class="romantic-font text-3xl text-red-600 mb-4">My Dearest Love ❤️</h2>
+            <p class="text-lg text-pink-800 leading-relaxed">
+                From the moment I met you, you've brought colors to my world that I never knew existed. 
+                Your smile lights up my darkest days, and your love makes my heart soar. I know I made 
+                a mistake, but my love for you is endless and pure. You are my everything, my present, 
+                and my future. I promise to cherish every moment with you and make you the happiest 
+                person alive. Will you give me another chance to prove my love?
+            </p>
+            <p class="romantic-font text-2xl text-red-600 mt-4">Forever Yours 💝</p>
+        </div>
+
+        <!-- Buttons -->
+        <div class="flex flex-col md:flex-row justify-center gap-6 mt-12">
+            <button onclick="showLoveLetter()" 
+                class="bg-gradient-to-r from-pink-500 to-red-500 text-white px-10 py-4 rounded-full text-xl transform hover:scale-105 transition shadow-lg">
+                Yes, I Forgive You! 💖
+            </button>
+            <button onclick="showCryingEmojis()" 
+                class="bg-gradient-to-r from-blue-400 to-purple-500 text-white px-10 py-4 rounded-full text-xl transform hover:scale-105 transition shadow-lg">
+                Not Yet... 😢
+            </button>
+        </div>
+    </div>
+
+    <script>
+        function showLoveLetter() {
+            const letter = document.getElementById('loveLetter');
+            letter.classList.remove('hidden');
+            setTimeout(() => letter.classList.add('show'), 100);
+            
+            // Create floating hearts
+            for(let i = 0; i < 50; i++) {
+                createFloatingHeart();
+            }
+        }
+
+        function createFloatingHeart() {
+            const heart = document.createElement('div');
+            heart.innerHTML = '❤️';
+            heart.style.position = 'fixed';
+            heart.style.left = Math.random() * 100 + 'vw';
+            heart.style.top = Math.random() * 100 + 'vh';
+            heart.style.animation = `float ${Math.random() * 3 + 2}s ease-in-out infinite`;
+            heart.style.fontSize = `${Math.random() * 20 + 20}px`;
+            document.body.appendChild(heart);
+            setTimeout(() => heart.remove(), 3000);
+        }
+
+        function showCryingEmojis() {
+            // Create raining crying emojis
+            for(let i = 0; i < 50; i++) {
+                setTimeout(() => createCryingEmoji(), i * 100);
+            }
+            
+            // Redirect after animation
+            setTimeout(() => {
+                window.location.href = 'memory.html';
+            }, 6000);
+        }
+
+        function createCryingEmoji() {
+            const emoji = document.createElement('div');
+            emoji.innerHTML = '😢';
+            emoji.className = 'crying-emoji';
+            emoji.style.left = Math.random() * 100 + 'vw';
+            emoji.style.top = '-50px';
+            emoji.style.fontSize = `${Math.random() * 20 + 20}px`;
+            emoji.style.animationDuration = `${Math.random() * 2 + 3}s`;
+            document.body.appendChild(emoji);
+            setTimeout(() => emoji.remove(), 5000);
+        }
+    </script>
+</body>
+</html>
